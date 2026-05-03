@@ -1,16 +1,29 @@
-//
-// Created by aagui on 02-05-2026.
-//
+#ifndef MediaPlayer_hpp
+#define MediaPlayer_hpp
 
-#ifndef BENJAMINROJAS_BRANDONNAVEA_TALLER1_MEDIAPLAYER_HPP
-#define BENJAMINROJAS_BRANDONNAVEA_TALLER1_MEDIAPLAYER_HPP
-
-
+#include "../Estructura/ListaEnLazada.hpp"
+#include "../Clases/cancion.hpp"
 
 class MediaPlayer {
+    private:
+        ListaEnlazada<cancion*> canciones;
+
+        ListaEnlazada<cancion*> previaPlaylist;
+
+        cancion* previaPlaying;
+        bool random;
+        int modoRepetir;
+
+    public:
+        MediaPlayer();
+
+        void run();
+        void loadSongs();
+        void saveStatus();
+
+        void showGeneralList();
+        void showCurrentPlaylist();
 
 };
 
-
-
-#endif //BENJAMINROJAS_BRANDONNAVEA_TALLER1_MEDIAPLAYER_HPP
+#endif
