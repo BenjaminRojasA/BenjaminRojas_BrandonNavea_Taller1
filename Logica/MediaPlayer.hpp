@@ -20,7 +20,6 @@ class MediaPlayer {
         void run();
         void loadSongs();
         void saveStatus();
-
         void showGeneralList();
         void showCurrentPlaylist();
 

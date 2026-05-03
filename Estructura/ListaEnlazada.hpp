@@ -1,5 +1,5 @@
 #include <iostream>
-
+using namespace std;
 #include "Nodo.hpp"
 
 template <typename T>
@@ -12,6 +12,7 @@ class ListaEnlazada {
         void insertar(T value);
         void remover(int index);
         T get(int index);
+        void imprimir();
 
         ~ListaEnlazada();
 };
@@ -38,3 +39,27 @@ void ListaEnlazada<T>::insertar(T data) {
 
 }
 
+template <typename T>
+void ListaEnlazada<T>::imprimir() {
+    Nodo<T>* temp = head;
+
+    if (!temp) {
+        cout << "\n[!] La lista esta vacia." << endl;
+        return;
+    }
+
+    while (temp) {
+        temp->dato->mostrar();
+        temp = temp->next;
+    }
+}
+
+template <typename T>
+ListaEnlazada<T>::~ListaEnlazada() {
+    Nodo<T>* temp = head;
+    while (temp != nullptr) {
+        Nodo<T>* siguiente = temp->next;
+        delete temp;
+        temp = siguiente;
+    }
+}

@@ -17,6 +17,7 @@ private:
 
 public:
     cancion();
+    void mostrar();
     cancion(int id, string nombre, string artista, string album, string año,string duracion, string ubicacion);
 };
-#endif CANCION_HPP
+#endif //CANCION_HPP

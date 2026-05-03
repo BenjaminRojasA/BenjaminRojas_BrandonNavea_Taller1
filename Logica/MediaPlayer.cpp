@@ -1,5 +1,4 @@
 
-
 #include <string>
 #include <fstream>
 #include "../Clases/cancion.hpp"
@@ -7,6 +6,12 @@
 using namespace std;
 #include "MediaPlayer.hpp"
 
+MediaPlayer::MediaPlayer() {
+
+    previaPlaying = nullptr;
+    random = false;
+    modoRepetir = 0;
+}
 
 void MediaPlayer::loadSongs() {
     ifstream archivo("music_source.txt");
@@ -68,7 +73,7 @@ void MediaPlayer::run() {
             case 'X':
                 ejecutando = false;
                 break;
-            //demas opciones que faltan
+                //demas opciones que faltan
 
             default:
                 cout << "Error: Opcion no valida. Intente de nuevo.";
@@ -78,5 +83,18 @@ void MediaPlayer::run() {
         }
 
     }
-
 }
+
+void MediaPlayer::showGeneralList(){
+        system("cls");
+        cout << "===========================================" << endl;
+        cout << "          LISTA GENERAL DE CANCIONES       " << endl;
+        cout << "===========================================" << endl;
+
+        canciones.imprimir();
+
+        cout << "===========================================" << endl;
+        cout << "\nPresione cualquier tecla para volver...";
+        system("pause > nul");
+    }
+
