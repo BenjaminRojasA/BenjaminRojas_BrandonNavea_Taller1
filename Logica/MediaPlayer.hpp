@@ -6,6 +6,7 @@
 
 class MediaPlayer {
     private:
+        Nodo<cancion*>* nodoActual;
         ListaEnlazada<cancion*> canciones;
 
         ListaEnlazada<cancion*> previaPlaylist;
@@ -16,9 +17,10 @@ class MediaPlayer {
 
     public:
         MediaPlayer();
-
+        cancion* getHead();
         void run();
         void loadSongs();
+        void loadStatus();
         void saveStatus();
         void showGeneralList();
         void showCurrentPlaylist();

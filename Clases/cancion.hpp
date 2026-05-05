@@ -16,6 +16,9 @@ private:
     string ubicacion;
 
 public:
+    int getId();
+    string getNombre();
+    string getArtista();
     cancion();
     void mostrar();
     cancion(int id, string nombre, string artista, string album, string año,string duracion, string ubicacion);

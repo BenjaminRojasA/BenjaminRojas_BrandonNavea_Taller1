@@ -8,6 +8,12 @@ class ListaEnlazada {
         Nodo<T> * head;
         int size;
     public:
+        Nodo<T>* getHead() {
+            return head;
+        }
+        int getSize() {
+            return size;
+        }
         ListaEnlazada();
         void insertar(T value);
         void remover(int index);
@@ -36,7 +42,7 @@ void ListaEnlazada<T>::insertar(T data) {
         nuevo->anterior = temp;
 
     }
-
+    this->size++;
 }
 
 template <typename T>

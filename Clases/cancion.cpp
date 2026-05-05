@@ -10,7 +10,15 @@ cancion::cancion(int id, string nombre, string artista, string album, string añ
     this->ubicacion = ubicacion;
 
 }
-
+int cancion::getId() {
+    return id;
+}
+string cancion::getNombre() {
+    return nombre;
+}
+string cancion::getArtista() {
+    return artista;
+}
 void cancion::mostrar() {
     cout << "[" << id << "] " << nombre << " - " << artista << " (" << album << ")" << endl;
 }
