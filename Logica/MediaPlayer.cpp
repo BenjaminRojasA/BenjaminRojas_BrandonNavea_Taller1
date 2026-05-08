@@ -11,19 +11,23 @@ MediaPlayer::MediaPlayer() {
     random = false;
     modoRepetir = 0;
     nodoActual = nullptr;
+    enPausa = false;
 }
 
 void MediaPlayer::saveStatus() {
     ofstream archivo("status.cfg");
     if (!archivo.is_open()) return;
 
-    int idActual = (previaPlaying!= nullptr) ? previaPlaying->getId() : -1;
-    archivo << idActual << ","
-            << (random ? 1: 0) << ","
-            << modoRepetir;
+    int idActual = (previaPlaying != nullptr) ? previaPlaying->getId() : -1;
+
+    // Formato estricto según pauta: PARÁMETRO VALOR
+    archivo << "CANCION_ACTUAL " << idActual << endl;
+    archivo << "MODO_ALEATORIO " << (random ? 1 : 0) << endl;
+    archivo << "MODO_REPETICION " << modoRepetir << endl;
 
     archivo.close();
 }
+
 void MediaPlayer::loadSongs() {
     ifstream archivo("music_source.txt");
     string linea;
@@ -65,23 +69,21 @@ void MediaPlayer::loadSongs() {
 
 void MediaPlayer::loadStatus() {
     ifstream archivo("status.cfg");
-    if (!archivo.is_open()) return; // Si no existe el archivo, no pasa nada
+    if (!archivo.is_open()) return;
 
-    string linea;
-    if (getline(archivo, linea)) {
-        stringstream ss(linea);
-        string idStr, randomStr, modoStr;
+    string parametro;
+    int valor;
+    int idBuscado = -1;
 
-        getline(ss, idStr, ',');
-        getline(ss, randomStr, ',');
-        getline(ss, modoStr, ',');
+    // Leemos automáticamente el par (Ej: "CANCION_ACTUAL" y "3")
+    while (archivo >> parametro >> valor) {
+        if (parametro == "CANCION_ACTUAL") idBuscado = valor;
+        else if (parametro == "MODO_ALEATORIO") this->random = (valor == 1);
+        else if (parametro == "MODO_REPETICION") this->modoRepetir = valor;
+    }
 
-        // 1. Restauramos los modos
-        this->random = (randomStr == "1");
-        this->modoRepetir = stoi(modoStr);
-
-        // 2. Buscamos la canción por ID para poner el nodoActual ahí
-        int idBuscado = stoi(idStr);
+    // Buscamos la canción por ID en nuestra lista
+    if (idBuscado != -1) {
         Nodo<cancion*>* temp = canciones.getHead();
         while (temp != nullptr) {
             if (temp->dato->getId() == idBuscado) {
@@ -94,6 +96,7 @@ void MediaPlayer::loadStatus() {
     }
     archivo.close();
 }
+
 void MediaPlayer::run() {
     loadSongs();
     loadStatus(); // Carga el estado inicial del taller
@@ -120,7 +123,12 @@ void MediaPlayer::run() {
 
         if (previaPlaying != nullptr) {
             cout << " REPRODUCIENDO: [" << previaPlaying->getId() << "] "
-                 << previaPlaying->getNombre() << endl;
+                 << previaPlaying->getNombre();
+
+            // --- AGREGAMOS LA ETIQUETA VISUAL DE PAUSA ---
+            if (enPausa) cout << " [PAUSADO]";
+            cout << endl;
+
             cout << " ARTISTA: " << previaPlaying->getArtista() << endl;
         } else {
             cout << " [!] No hay canciones seleccionadas." << endl;
@@ -143,6 +151,11 @@ void MediaPlayer::run() {
         opcion = toupper(opcion);
 
         switch (opcion) {
+            case 'W': // PLAY / PAUSE
+                if (previaPlaying != nullptr) {
+                    enPausa = !enPausa; // Cambia de true a false y viceversa
+                }
+                break;
             case 'E':
                 // 1. PRIORIDAD: MODO ALEATORIO (Si está prendido, da igual el modo repetir)
                 if (random && canciones.getSize() > 0) {

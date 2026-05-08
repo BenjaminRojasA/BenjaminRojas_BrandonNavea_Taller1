@@ -14,6 +14,7 @@ class MediaPlayer {
         cancion* previaPlaying;
         bool random;
         int modoRepetir;
+        bool enPausa;
 
     public:
         MediaPlayer();
