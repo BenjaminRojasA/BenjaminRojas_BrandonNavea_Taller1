@@ -1,5 +1,6 @@
-#include <iostream>
 
+#ifndef NODO_HPP
+#define NODO_HPP
 template <typename T>
 struct Nodo {
     public:
@@ -13,7 +14,7 @@ struct Nodo {
         this->anterior = nullptr;
     }
 };
-
+#endif //NODO_HPP
 
 
 

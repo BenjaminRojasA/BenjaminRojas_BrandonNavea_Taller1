@@ -1,6 +1,6 @@
 #ifndef MediaPlayer_hpp
 #define MediaPlayer_hpp
-
+#include "../Estructura/Stack.hpp"
 #include "../Estructura/ListaEnLazada.hpp"
 #include "../Clases/cancion.hpp"
 
@@ -8,7 +8,7 @@ class MediaPlayer {
     private:
         Nodo<cancion*>* nodoActual;
         ListaEnlazada<cancion*> canciones;
-
+        Queue<cancion*> colaReproduccion;
         ListaEnlazada<cancion*> previaPlaylist;
 
         cancion* previaPlaying;
@@ -20,6 +20,7 @@ class MediaPlayer {
         MediaPlayer();
         cancion* getHead();
         void run();
+        void agregarACola();
         void loadSongs();
         void loadStatus();
         void saveStatus();

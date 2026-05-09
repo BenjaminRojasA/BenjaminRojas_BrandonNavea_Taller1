@@ -75,14 +75,14 @@ void MediaPlayer::loadStatus() {
     int valor;
     int idBuscado = -1;
 
-    // Leemos automáticamente el par (Ej: "CANCION_ACTUAL" y "3")
+
     while (archivo >> parametro >> valor) {
         if (parametro == "CANCION_ACTUAL") idBuscado = valor;
         else if (parametro == "MODO_ALEATORIO") this->random = (valor == 1);
         else if (parametro == "MODO_REPETICION") this->modoRepetir = valor;
     }
 
-    // Buscamos la canción por ID en nuestra lista
+
     if (idBuscado != -1) {
         Nodo<cancion*>* temp = canciones.getHead();
         while (temp != nullptr) {
@@ -99,9 +99,8 @@ void MediaPlayer::loadStatus() {
 
 void MediaPlayer::run() {
     loadSongs();
-    loadStatus(); // Carga el estado inicial del taller
+    loadStatus();
 
-    // Inicializamos el puntero al inicio si no se cargó nada del status
     if (canciones.getHead() != nullptr && nodoActual == nullptr) {
         nodoActual = canciones.getHead();
         previaPlaying = nodoActual->dato;
@@ -114,9 +113,9 @@ void MediaPlayer::run() {
         if (nodoActual == nullptr) {
             nodoActual = canciones.getHead();
         }
-        system("cls"); // 1. Limpiar
+        system("cls");
 
-        // 2. Mostrar la info arriba (Encabezado único)
+
         cout << "===========================================" << endl;
         cout << "       REPRODUCTOR DE MUSICA (UCN)         " << endl;
         cout << "===========================================" << endl;
@@ -125,7 +124,7 @@ void MediaPlayer::run() {
             cout << " REPRODUCIENDO: [" << previaPlaying->getId() << "] "
                  << previaPlaying->getNombre();
 
-            // --- AGREGAMOS LA ETIQUETA VISUAL DE PAUSA ---
+
             if (enPausa) cout << " [PAUSADO]";
             cout << endl;
 
@@ -135,14 +134,16 @@ void MediaPlayer::run() {
         }
 
         cout << "-------------------------------------------" << endl;
-        cout << " W - Pause | Q - Anterior | E - Siguiente " << endl;
+        cout << " W - Pause  | Q - Anterior | E - Siguiente " << endl;
         cout << " S - Random [" << (random ? "ON " : "OFF") << "] | ";
         cout << " R - Repetir [";
         if (modoRepetir == 0) cout << "OFF";
         else if (modoRepetir == 1) cout << "ONE";
         else cout << "ALL";
         cout << "]" << endl;
-        cout << " L - Lista | X - Salir     " << endl;
+
+
+        cout << " L - Lista | A - Cola (" << colaReproduccion.getSize() << ") | X - Salir" << endl;
         cout << "-------------------------------------------" << endl;
 
         cout << " Ingrese una opcion: ";
@@ -151,130 +152,128 @@ void MediaPlayer::run() {
         opcion = toupper(opcion);
 
         switch (opcion) {
-            case 'W': // PLAY / PAUSE
-                if (previaPlaying != nullptr) {
-                    enPausa = !enPausa; // Cambia de true a false y viceversa
-                }
+            case 'A':
+                agregarACola();
                 break;
-            case 'E':
-                // 1. PRIORIDAD: MODO ALEATORIO (Si está prendido, da igual el modo repetir)
-                if (random && canciones.getSize() > 0) {
-                    int total = canciones.getSize();
-                    int indiceAzar = rand() % total;
-                    Nodo<cancion*>* temp = canciones.getHead();
+            case 'W':
+                if (previaPlaying != nullptr) {
+                    enPausa = !enPausa;
+                    break;
+                    case 'E':
+                    if (colaReproduccion.getSize() > 0 && colaReproduccion.getSize() < 1000) {
+                        cancion* extraida = colaReproduccion.dequeue();
 
-                    for (int i = 0; i < indiceAzar && temp != nullptr; i++) {
-                        temp = temp->next;
+                        if (extraida != nullptr) {
+
+                            previaPlaying = extraida;
+                            cout << "\n[COLA] Reproduciendo pedido especial..." << endl;
+                            break; // Salimos del case. La próxima vez que aprietes 'E', seguirá desde donde se quedó.
+                        }
                     }
 
-                    if (temp != nullptr) {
-                        nodoActual = temp;
-                    }
-                }
-                // 2. MODO NORMAL (Random OFF)
-                else {
-                    if (modoRepetir == 1) {
-                        // --- MODO REPEAT ONE ---
-                        // Simplemente no movemos el puntero 'nodoActual'
-                        // Así se queda en la misma canción actual
-                        cout << "\n[INFO] Modo Repeat One: Reproduciendo de nuevo..." << endl;
-                    }
-                    else if (nodoActual != nullptr && nodoActual->next != nullptr) {
-                        // AVANCE NORMAL: Si hay una canción siguiente, vamos a ella
-                        nodoActual = nodoActual->next;
-                    }
-                    else if (modoRepetir == 2) {
-                        // --- MODO REPEAT ALL ---
-                        // Si llegaste a la última (next == nullptr), saltamos a la primera
-                        cout << "\n[INFO] Fin de lista. Volviendo al inicio (Modo Repeat All)..." << endl;
-                        nodoActual = canciones.getHead();
+                    // --- 2. SI NO HAY COLA, AVANCE NORMAL ---
+                    if (this->random == true) {
+                        int total = canciones.getSize();
+                        if (total > 0) {
+                            int idx = rand() % total;
+                            Nodo<cancion*>* t = canciones.getHead();
+                            for(int i = 0; i < idx && t != nullptr; i++) t = t->next;
+                            nodoActual = t;
+                        }
                     }
                     else {
-                        // --- MODO OFF ---
-                        // No hay siguiente y no hay repetición activada
-                        cout << "\n[!] Fin de la lista de reproduccion." << endl;
-                        system("pause");
-                    }
-                }
-
-                // ACTUALIZACIÓN DE LA INTERFAZ
-                if (nodoActual != nullptr) {
-                    previaPlaying = nodoActual->dato;
-                }
-                break;
-            case 'Q':
-                // 1. MODO ALEATORIO (Se comporta igual, elige uno al azar)
-                if (random && canciones.getSize() > 0) {
-                    int total = canciones.getSize();
-                    int indiceAzar = rand() % total;
-                    Nodo<cancion*>* temp = canciones.getHead();
-
-                    for (int i = 0; i < indiceAzar && temp != nullptr; i++) {
-                        temp = temp->next;
+                        // Avance lógico: si estabas en la 1, ahora pasas a la 2
+                        if (modoRepetir == 1) {
+                            // Repeat One: no movemos nada
+                        }
+                        else if (nodoActual != nullptr && nodoActual->next != nullptr) {
+                            nodoActual = nodoActual->next;
+                        }
+                        else if (modoRepetir == 2) {
+                            nodoActual = canciones.getHead();
+                        }
+                        else {
+                            cout << "\n[!] Fin de la lista." << endl;
+                            system("pause");
+                        }
                     }
 
-                    if (temp != nullptr) {
-                        nodoActual = temp;
+
+                    if (nodoActual != nullptr) {
+                        previaPlaying = nodoActual->dato;
                     }
-                }
-                // 2. MODO NORMAL (Random OFF)
-                else {
-                    if (modoRepetir == 1) {
-                        // --- MODO REPEAT ONE ---
-                        cout << "\n[INFO] Modo Repeat One: Reproduciendo de nuevo..." << endl;
-                    }
-                    else if (nodoActual != nullptr && nodoActual->anterior != nullptr) {
-                        // RETROCESO NORMAL: Si hay una canción anterior, vamos a ella
-                        nodoActual = nodoActual->anterior;
-                    }
-                    else if (modoRepetir == 2) {
-                        // --- MODO REPEAT ALL ---
-                        // Si llegaste a la primera (anterior == nullptr), saltamos a la última
-                        cout << "\n[INFO] Inicio de lista. Volviendo al final (Modo Repeat All)..." << endl;
+                    break;
+                    case 'Q':
+
+                    if (random && canciones.getSize() > 0) {
+                        int total = canciones.getSize();
+                        int indiceAzar = rand() % total;
                         Nodo<cancion*>* temp = canciones.getHead();
-                        // Recorremos hasta llegar al final
-                        while (temp != nullptr && temp->next != nullptr) {
+
+                        for (int i = 0; i < indiceAzar && temp != nullptr; i++) {
                             temp = temp->next;
                         }
-                        nodoActual = temp;
+
+                        if (temp != nullptr) {
+                            nodoActual = temp;
+                        }
                     }
+                    // 2. MODO NORMAL (Random OFF)
                     else {
-                        // --- MODO OFF ---
-                        // No hay anterior y no hay repetición activada
-                        cout << "\n[!] Principio de la lista de reproduccion." << endl;
-                        system("pause");
+                        if (modoRepetir == 1) {
+                            // --- MODO REPEAT ONE ---
+                            cout << "\n[INFO] Modo Repeat One: Reproduciendo de nuevo..." << endl;
+                        }
+                        else if (nodoActual != nullptr && nodoActual->anterior != nullptr) {
+
+                            nodoActual = nodoActual->anterior;
+                        }
+                        else if (modoRepetir == 2) {
+
+                            cout << "\n[INFO] Inicio de lista. Volviendo al final (Modo Repeat All)..." << endl;
+                            Nodo<cancion*>* temp = canciones.getHead();
+
+                            while (temp != nullptr && temp->next != nullptr) {
+                                temp = temp->next;
+                            }
+                            nodoActual = temp;
+                        }
+                        else {
+
+                            cout << "\n[!] Principio de la lista de reproduccion." << endl;
+                            system("pause");
+                        }
                     }
+
+                    // ACTUALIZACIÓN DE LA INTERFAZ
+                    if (nodoActual != nullptr) {
+                        previaPlaying = nodoActual->dato;
+                    }
+                    break;
+
+                    case 'S':
+                    random = !random;
+                    break;
+
+                    case 'L':
+                    showGeneralList();
+                    system("pause"); // Aquí sí pausamos para que alcances a leer
+                    break;
+
+                    case 'X':
+                    saveStatus(); // Guarda antes de cerrar como pide la pauta
+                    ejecutando = false;
+                    break;
+                    case 'R':
+
+                    modoRepetir = (modoRepetir + 1) % 3;
+                    break;
+
+                    default:
+                    cout << "\n[!] Opcion no valida.";
+                    system("pause");
+                    break;
                 }
-
-                // ACTUALIZACIÓN DE LA INTERFAZ
-                if (nodoActual != nullptr) {
-                    previaPlaying = nodoActual->dato;
-                }
-                break;
-
-            case 'S': // TOGGLE ALEATORIO
-                random = !random;
-                break;
-
-            case 'L': // LISTA
-                showGeneralList();
-                system("pause"); // Aquí sí pausamos para que alcances a leer
-                break;
-
-            case 'X': // SALIR
-                saveStatus(); // Guarda antes de cerrar como pide la pauta
-                ejecutando = false;
-                break;
-            case 'R':
-                // Cicla entre 0, 1 y 2
-                modoRepetir = (modoRepetir + 1) % 3;
-                break;
-
-            default:
-                cout << "\n[!] Opcion no valida.";
-                system("pause");
-                break;
-                // Al final de cualquier tecla (E, Q, S), actualizamos la canción que se muestra
 
 
         }
@@ -292,3 +291,29 @@ void MediaPlayer::run() {
         cout << "\nPresione cualquier tecla para volver...";
         system("pause > nul");
     }
+
+void MediaPlayer::agregarACola() {
+    int idBuscado;
+    cout << "\n[COLA] Ingrese el ID de la cancion: ";
+    if (!(cin >> idBuscado)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        return;
+    }
+
+    Nodo<cancion*>* temp = canciones.getHead();
+    while (temp != nullptr) {
+        if (temp->dato != nullptr && temp->dato->getId() == idBuscado) {
+
+            this->colaReproduccion.enqueue(temp->dato);
+
+            cout << "[OK] " << temp->dato->getNombre() << " agregada." << endl;
+            cout << "[DEBUG] Canciones en cola ahora: " << this->colaReproduccion.getSize() << endl;
+            system("pause");
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "[!] ID no encontrado." << endl;
+    system("pause");
+}

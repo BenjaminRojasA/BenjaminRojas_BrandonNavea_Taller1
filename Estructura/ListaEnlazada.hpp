@@ -1,3 +1,6 @@
+#ifndef LISTAENLAZADA_HPP
+#define LISTAENLAZADA_HPP
+
 #include <iostream>
 using namespace std;
 #include "Nodo.hpp"
@@ -14,7 +17,10 @@ class ListaEnlazada {
         int getSize() {
             return size;
         }
-        ListaEnlazada();
+        ListaEnlazada() {
+            this->head = nullptr;
+            this->size = 0;
+        }
         void insertar(T value);
         void remover(int index);
         T get(int index);
@@ -24,13 +30,8 @@ class ListaEnlazada {
 };
 
 template <typename T>
-ListaEnlazada<T>::ListaEnlazada() {
-    head = nullptr;
-}
-
-template <typename T>
 void ListaEnlazada<T>::insertar(T data) {
-    Nodo<T>* nuevo = new Nodo<T>{data};
+    Nodo<T>* nuevo = new Nodo<T>(data);
     if (!head) {
         head = nuevo;
     } else {
@@ -40,11 +41,10 @@ void ListaEnlazada<T>::insertar(T data) {
         }
         temp->next = nuevo;
         nuevo->anterior = temp;
-
     }
+    // ESTA LÍNEA ES VITAL:
     this->size++;
 }
-
 template <typename T>
 void ListaEnlazada<T>::imprimir() {
     Nodo<T>* temp = head;
@@ -69,3 +69,5 @@ ListaEnlazada<T>::~ListaEnlazada() {
         temp = siguiente;
     }
 }
+
+#endif // LISTAENLAZADA_HPP
