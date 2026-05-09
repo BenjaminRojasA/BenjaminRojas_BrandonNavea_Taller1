@@ -20,7 +20,6 @@ void MediaPlayer::saveStatus() {
 
     int idActual = (previaPlaying != nullptr) ? previaPlaying->getId() : -1;
 
-    // Formato estricto según pauta: PARÁMETRO VALOR
     archivo << "CANCION_ACTUAL " << idActual << endl;
     archivo << "MODO_ALEATORIO " << (random ? 1 : 0) << endl;
     archivo << "MODO_REPETICION " << modoRepetir << endl;
@@ -32,7 +31,6 @@ void MediaPlayer::loadSongs() {
     ifstream archivo("music_source.txt");
     string linea;
     if (!archivo.is_open()) {
-        // Si ves este mensaje, el problema es la ubicación del archivo
         cout << "\n[DEBUG] Error: No se encontro music_source.txt en la ruta actual." << endl;
         system("pause");
         return;
@@ -167,7 +165,7 @@ void MediaPlayer::run() {
 
                             previaPlaying = extraida;
                             cout << "\n[COLA] Reproduciendo pedido especial..." << endl;
-                            break; // Salimos del case. La próxima vez que aprietes 'E', seguirá desde donde se quedó.
+                            break;
                         }
                     }
 
@@ -182,7 +180,6 @@ void MediaPlayer::run() {
                         }
                     }
                     else {
-                        // Avance lógico: si estabas en la 1, ahora pasas a la 2
                         if (modoRepetir == 1) {
                             // Repeat One: no movemos nada
                         }
